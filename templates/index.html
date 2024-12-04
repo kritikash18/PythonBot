@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Assist 2.0</title>
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+<div class="chat-container">
+    <div class="chat-header">
+        <h1 class="chat-title">Shop Assist 2.0</h1>
+    </div>
+    <div class="chat-body" id="chatcontainer">
+        {% for entry in name_bot %}
+        <div class="message-container {% if entry.bot %}bot-message{% else %}user-message{% endif %}">
+            <div class="message-content">
+                {{ entry.bot if entry.bot else entry.user }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="loading-indicator" id="loadingDots">
+        <span>.</span><span>.</span><span>.</span>
+    </div>
+    <div class="chat-input">
+        <form action="/chat" method="POST" class="inputform">
+            <input type="text" name="user_input_message" class="input-box" placeholder="Ask me anything about laptops!" required>
+            <button type="submit" class="send-button">Send</button>
+        </form>
+        <form action="/exit" method="POST" class="endform">
+            <button type="submit" class="end-button">Restart Conversation</button>
+        </form>
+    </div>
+</div>
+<script>
+        function scrollToBottom() {
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        window.onload = scrollToBottom;
+    </script>
+</body>
+</html>
