@@ -260,9 +260,13 @@ def extract_user_info(GPU_intensity, Display_quality, Portability, Multitasking,
 def compare_laptops_with_user(user_requirements):
     laptop_df= pd.read_csv('laptop_data.csv')
     laptop_df['laptop_feature'] = laptop_df['Description'].apply(lambda x: product_map_layer(x))
+#     print(laptop_df['laptop_feature'])
     budget = int(user_requirements.get('Budget', '0'))
-    filtered_laptops['Price'] = filtered_laptops['Price'].str.replace(',', '').astype(int)
-    filtered_laptops = filtered_laptops[filtered_laptops['Price'] <= budget].copy()
+    print(budget)
+    filtered_laptops_1 = laptop_df.copy()
+    filtered_laptops_1['Price'] = filtered_laptops_1['Price'].str.replace(',', '').astype(int)
+    filtered_laptops = filtered_laptops_1[filtered_laptops_1['Price'] <= budget].copy()
+    print(filtered_laptops['Price'])
     mappings = {'low': 0, 'medium': 1, 'high': 2}
     # Create 'Score' column in the DataFrame and initialize to 0
     filtered_laptops['Score'] = 0
@@ -288,6 +292,7 @@ def compare_laptops_with_user(user_requirements):
     top_laptops = filtered_laptops.drop('laptop_feature', axis=1)
     top_laptops = top_laptops.sort_values('Score', ascending=False).head(3)
     top_laptops_json = top_laptops.to_json(orient='records')  # Converting the top laptops DataFrame to JSON format
+    print(top_laptops_json)
 
     # top_laptops
     return top_laptops_json
@@ -312,7 +317,10 @@ def initialize_conv_reco(products):
     2. <Laptop Name> : <Major specifications of the laptop>, <Price in Rs>
 
     """
-    conversation = [{"role": "system", "content": system_message }]
+    user_message = f""" These are the user's products: {products}"""
+    conversation = [{"role": "system", "content": system_message },
+                    {"role":"user","content":user_message}]
+    # conversation_final = conversation[0]['content']
     return conversation
 
 def product_map_layer(laptop_description):
@@ -363,7 +371,7 @@ def product_map_layer(laptop_description):
     ### Strictly don't keep any other text in the values for the keys other than low or medium or high. Also return only the string and nothing else###
     """
     input = f"""Follow the above instructions step-by-step and output the string {lap_spec} for the following laptop {laptop_description}."""
-    #see that we are using the Completion endpoint and not the Chatcompletion endpoint
+
     messages=[{"role": "system", "content":prompt },{"role": "user","content":input}]
 
     response = get_chat_completions(messages)
